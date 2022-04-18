@@ -6,19 +6,23 @@ import androidx.lifecycle.ViewModel
 import com.example.weather.model.AppState
 import com.example.weather.model.repository.Repository
 import java.lang.Thread.sleep
-import kotlin.reflect.KProperty
 
 class MainViewModel(private val repository: Repository) : ViewModel() {
     private val localLiveData = MutableLiveData<AppState>()
     val liveData: LiveData<AppState> get() = localLiveData
 
-    fun getWeather() = getDataFromLocalSource()
+    fun getWeatherFromLocalStorageRus() = getDataFromLocalSource(isRussian = true)
 
-    private fun getDataFromLocalSource() {
+    fun getWeatherFromLocalStorageWorld() = getDataFromLocalSource(isRussian = false)
+
+    private fun getDataFromLocalSource(isRussian: Boolean) {
         localLiveData.value = AppState.Loading
         Thread {
             sleep(1000)
-            localLiveData.postValue(AppState.Success(repository.getWeatherFromLocalStorage()))
+            if (isRussian)
+                localLiveData.postValue(AppState.Success(repository.getWeatherFromLocalStorageRus()))
+            else
+                localLiveData.postValue((AppState.Success(repository.getWeatherFromLocalStorageWorld())))
         }.start()
     }
 }
